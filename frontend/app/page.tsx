@@ -22,5 +22,32 @@ export default function Home() {
 
       {/* Search Bar Section (Mobile-First) */}
       <section className="w-full max-w-md mx-auto -mt-12 z-20 bg-white shadow-lg rounded-lg p-6 md:p-8">
+        <form className="grid grid-cols-1 gap-4">
+          <input
+            type="text"
+            placeholder="Rechercher par lieu, marque..."
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <input
+              type="date"
+              placeholder="Date de début"
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="date"
+              placeholder="Date de fin"
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-md transition duration-300"
+          >
+            Rechercher
+          </button>
+        </form>
+      </section>
+    </div>
   );
 }
