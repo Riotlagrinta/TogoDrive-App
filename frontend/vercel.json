@@ -1,7 +1,6 @@
 {
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
-  "installCommand": "npm install",
-  "framework": "nextjs",
-  "cache": false
+  "installCommand": "rm -rf node_modules package-lock.json && npm install",
+  "framework": "nextjs"
 }
