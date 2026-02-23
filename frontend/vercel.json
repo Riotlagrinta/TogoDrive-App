@@ -3,6 +3,7 @@
   "devCommand": "npm run dev",
   "installCommand": "rm -rf node_modules package-lock.json && npm install",
   "framework": "nextjs",
+  "nodeVersion": "20.x",
   "env": {
     "NEXT_DISABLE_TURBOPACK": "1"
   }
