@@ -2,5 +2,8 @@
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
   "installCommand": "rm -rf node_modules package-lock.json && npm install",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "env": {
+    "NEXT_DISABLE_TURBOPACK": "1"
+  }
 }
