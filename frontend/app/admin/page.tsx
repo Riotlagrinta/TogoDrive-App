@@ -11,12 +11,18 @@ import {
   Loader2,
   ArrowUpRight,
   ArrowDownRight,
-  Search
+  Search,
+  MapPin,
+  CheckCircle,
+  XCircle,
+  Clock,
+  ExternalLink
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
+  const [pendingPartners, setPendingPartners] = useState<any[]>([]);
   const [stats, setStats] = useState({
     users: 0,
     vehicles: 0,
@@ -25,25 +31,63 @@ export default function AdminDashboard() {
   });
   const router = useRouter();
 
+  const fetchPendingPartners = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/pending-partners`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        setPendingPartners(data);
+      }
+    } catch (error) {
+      console.error("Erreur partenaires:", error);
+    }
+  };
+
   useEffect(() => {
-    // Sécurisation côté client
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (user.role !== 'ADMIN') {
       router.push('/');
       return;
     }
 
-    // Simulation de récupération de stats globales (à lier à une route API Admin plus tard)
-    setTimeout(() => {
+    const loadData = async () => {
+      await fetchPendingPartners();
+      // Simulation stats
       setStats({
-        users: 124,
-        vehicles: 45,
-        bookings: 89,
-        revenue: 2450000
+        users: 145,
+        vehicles: 52,
+        bookings: 98,
+        revenue: 2850000
       });
       setLoading(false);
-    }, 1000);
+    };
+
+    loadData();
   }, [router]);
+
+  const handleValidatePartner = async (userId: string, action: 'ACTIVE' | 'REJECTED') => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/validate-partner`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ userId, action })
+      });
+
+      if (response.ok) {
+        setPendingPartners(prev => prev.filter(p => p.id !== userId));
+        alert(`Partenaire ${action === 'ACTIVE' ? 'validé' : 'rejeté'} avec succès !`);
+      }
+    } catch (error) {
+      alert("Erreur lors de la validation");
+    }
+  };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-10 h-10 animate-spin text-togo-green" /></div>;
 
@@ -51,11 +95,11 @@ export default function AdminDashboard() {
     { label: 'Utilisateurs', value: stats.users, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50', trend: '+12%' },
     { label: 'Véhicules', value: stats.vehicles, icon: Car, color: 'text-togo-green', bg: 'bg-togo-green/10', trend: '+5%' },
     { label: 'Réservations', value: stats.bookings, icon: CalendarCheck, color: 'text-togo-yellow', bg: 'bg-togo-yellow/10', trend: '+18%' },
-    { label: 'Chiffre d'Affaires', value: `${stats.revenue.toLocaleString()} FCFA`, icon: TrendingUp, color: 'text-togo-red', bg: 'bg-togo-red/10', trend: '+22%' },
+    { label: "Chiffre d'Affaires", value: `${stats.revenue.toLocaleString()} FCFA`, icon: TrendingUp, color: 'text-togo-red', bg: 'bg-togo-red/10', trend: '+22%' },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24 pb-12">
+    <div className="min-h-screen bg-gray-50 pt-24 pb-12 text-togo-dark">
       <div className="container mx-auto px-4">
         
         <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -63,26 +107,12 @@ export default function AdminDashboard() {
             <span className="px-3 py-1 bg-red-100 text-red-600 rounded-full text-[10px] font-black uppercase tracking-widest mb-2 inline-block">
               Panel Super-Admin
             </span>
-            <h1 className="text-3xl font-black text-togo-dark leading-tight">
+            <h1 className="text-3xl font-black leading-tight">
               Tableau de Bord <span className="text-togo-red">Global</span>
             </h1>
-            <p className="text-gray-500 mt-1">
-              Gestion centralisée de la plateforme TogoDrive.
+            <p className="text-gray-500 mt-1 font-medium">
+              Pilotez l'activité et certifiez les nouveaux partenaires TogoDrive.
             </p>
-          </div>
-          <div className="flex items-center gap-3">
-             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input 
-                  type="text" 
-                  placeholder="Rechercher..." 
-                  className="pl-10 pr-4 py-2 bg-white border border-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-togo-red/20 outline-none"
-                />
-             </div>
-             <button className="p-2 bg-white rounded-xl border border-gray-100 shadow-sm relative">
-                <ShieldAlert className="w-5 h-5 text-red-500" />
-                <span className="absolute top-0 right-0 w-2 h-2 bg-red-600 rounded-full border-2 border-white"></span>
-             </button>
           </div>
         </div>
 
@@ -105,44 +135,93 @@ export default function AdminDashboard() {
                 </span>
               </div>
               <p className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">{card.label}</p>
-              <p className="text-2xl font-black text-togo-dark">{card.value}</p>
+              <p className="text-2xl font-black">{card.value}</p>
             </motion.div>
           ))}
         </div>
 
-        {/* Section de gestion (Placeholders) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-8">
+          {/* Section Partenaires en Attente */}
           <div className="bg-white p-8 rounded-[40px] shadow-sm border border-gray-100">
-            <h3 className="text-xl font-black text-togo-dark mb-6 flex items-center gap-2">
-              <Users className="w-5 h-5 text-blue-600" /> Derniers Utilisateurs
-            </h3>
-            <div className="space-y-4">
-              {[1, 2, 3].map((_, i) => (
-                <div key={i} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
-                    <div>
-                      <p className="font-bold text-togo-dark">Utilisateur #{i+1}</p>
-                      <p className="text-xs text-gray-400 font-medium">client@example.com</p>
-                    </div>
-                  </div>
-                  <button className="text-xs font-bold text-blue-600 hover:underline">Gérer</button>
-                </div>
-              ))}
+            <div className="flex items-center justify-between mb-8">
+               <h3 className="text-xl font-black flex items-center gap-3">
+                <ShieldAlert className="w-6 h-6 text-togo-red" /> 
+                Demandes de Partenariat <span className="px-2 py-0.5 bg-red-50 text-red-600 text-xs rounded-lg">{pendingPartners.length}</span>
+              </h3>
             </div>
-          </div>
 
-          <div className="bg-white p-8 rounded-[40px] shadow-sm border border-gray-100">
-             <h3 className="text-xl font-black text-togo-dark mb-6 flex items-center gap-2">
-              <Car className="w-5 h-5 text-togo-green" /> Véhicules à valider
-            </h3>
-            <div className="flex flex-col items-center justify-center py-10 text-center">
-              <div className="bg-green-50 p-4 rounded-full mb-4 text-togo-green">
-                <Car className="w-8 h-8" />
+            {pendingPartners.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                 <div className="bg-gray-50 p-6 rounded-full mb-4">
+                    <CheckCircle className="w-10 h-10 text-togo-green" />
+                 </div>
+                 <p className="font-bold text-lg">Tout est à jour !</p>
+                 <p className="text-gray-400">Aucun nouveau partenaire en attente de validation.</p>
               </div>
-              <p className="font-bold text-togo-dark">Tout est à jour !</p>
-              <p className="text-sm text-gray-400">Aucun véhicule en attente de validation.</p>
-            </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <AnimatePresence>
+                  {pendingPartners.map((partner) => (
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      key={partner.id}
+                      className="p-6 bg-gray-50 rounded-3xl border border-gray-100 hover:border-togo-red/20 transition-all group"
+                    >
+                      <div className="flex justify-between items-start mb-6">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-togo-dark rounded-2xl flex items-center justify-center text-white font-black text-xl">
+                            {partner.firstName[0]}{partner.lastName[0]}
+                          </div>
+                          <div>
+                            <p className="font-black text-lg">{partner.firstName} {partner.lastName}</p>
+                            <p className="text-xs text-gray-500 font-bold uppercase">{partner.email}</p>
+                          </div>
+                        </div>
+                        <div className="p-2 bg-yellow-100 text-yellow-600 rounded-lg">
+                          <Clock className="w-4 h-4" />
+                        </div>
+                      </div>
+
+                      <div className="space-y-4 mb-8">
+                        <div className="bg-white p-4 rounded-2xl border border-gray-100">
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                            <MapPin className="w-3 h-3 text-togo-red" /> Localisation de l'entrepôt
+                          </p>
+                          <p className="text-sm font-bold text-togo-dark leading-relaxed">
+                            {partner.warehouseLocation}
+                          </p>
+                          <button className="mt-3 text-[10px] font-black text-togo-red flex items-center gap-1 hover:underline">
+                             VOIR SUR GOOGLE MAPS <ExternalLink className="w-3 h-3" />
+                          </button>
+                        </div>
+                        
+                        <div className="flex items-center gap-3 text-xs text-gray-500 font-bold">
+                           <CalendarCheck className="w-4 h-4" /> Inscrit le {new Date(partner.createdAt).toLocaleDateString('fr-FR')}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <button 
+                          onClick={() => handleValidatePartner(partner.id, 'ACTIVE')}
+                          className="py-3.5 bg-togo-green text-white rounded-2xl font-black text-xs shadow-lg shadow-togo-green/10 hover:bg-opacity-90 transition-all flex items-center justify-center gap-2"
+                        >
+                          <CheckCircle className="w-4 h-4" /> Certifier
+                        </button>
+                        <button 
+                          onClick={() => handleValidatePartner(partner.id, 'REJECTED')}
+                          className="py-3.5 bg-white text-togo-red border border-red-100 rounded-2xl font-black text-xs hover:bg-red-50 transition-all flex items-center justify-center gap-2"
+                        >
+                          <XCircle className="w-4 h-4" /> Rejeter
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
           </div>
         </div>
       </div>
