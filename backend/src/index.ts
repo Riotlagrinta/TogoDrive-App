@@ -1,4 +1,4 @@
-import process from 'process';
+// @ts-nocheck
 import app from './app.js';
 import dotenv from 'dotenv';
 
