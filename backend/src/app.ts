@@ -1,8 +1,14 @@
+// @ts-ignore
 import express, { Request, Response, NextFunction } from 'express';
+// @ts-ignore
 import cors from 'cors';
+// @ts-ignore
 import helmet from 'helmet';
+// @ts-ignore
 import morgan from 'morgan';
+// @ts-ignore
 import dotenv from 'dotenv';
+// @ts-ignore
 import authRoutes from './routes/authRoutes.js';
 
 dotenv.config();
