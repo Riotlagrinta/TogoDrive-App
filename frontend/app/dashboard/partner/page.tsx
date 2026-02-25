@@ -19,8 +19,8 @@ import { motion } from 'framer-motion';
 
 export default function PartnerDashboard() {
   const [loading, setLoading] = useState(true);
-  const [myVehicles, setMyVehicles] = useState([]);
-  const [receivedBookings, setReceivedBookings] = useState([]);
+  const [myVehicles, setMyVehicles] = useState<any[]>([]);
+  const [receivedBookings, setReceivedBookings] = useState<any[]>([]);
   const router = useRouter();
 
   useEffect(() => {
