@@ -1,12 +1,32 @@
 // components/Header.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X, Car } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Menu, X, Car, User, LogOut, LayoutDashboard } from 'lucide-react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Vérifier si l'utilisateur est connecté au chargement
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    setIsMenuOpen(false);
+    router.push('/');
+    router.refresh();
+  };
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all">
@@ -24,13 +44,35 @@ export default function Header() {
           <Link href="/about" className="text-gray-600 hover:text-togo-green transition-colors">
             À propos
           </Link>
+
           <div className="flex items-center space-x-4 pl-4 border-l border-gray-200">
-            <Link href="/login" className="text-togo-dark hover:text-togo-green transition-colors">
-              Connexion
-            </Link>
-            <Link href="/register" className="bg-togo-green text-white px-6 py-2.5 rounded-full hover:bg-togo-green/90 shadow-md shadow-togo-green/20 transition-all font-semibold">
-              S'inscrire
-            </Link>
+            {user ? (
+              <div className="flex items-center gap-4">
+                <Link 
+                  href={user.role === 'ADMIN' ? '/admin' : '/dashboard/bookings'} 
+                  className="flex items-center gap-2 text-togo-dark hover:text-togo-green font-bold transition-all"
+                >
+                  <LayoutDashboard className="w-5 h-5" />
+                  Dashboard
+                </Link>
+                <button 
+                  onClick={handleLogout}
+                  className="p-2 text-gray-400 hover:text-togo-red transition-all"
+                  title="Déconnexion"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <Link href="/login" className="text-togo-dark hover:text-togo-green transition-colors font-bold">
+                  Connexion
+                </Link>
+                <Link href="/register" className="bg-togo-green text-white px-6 py-2.5 rounded-full hover:bg-togo-green/90 shadow-md shadow-togo-green/20 transition-all font-bold">
+                  S'inscrire
+                </Link>
+              </>
+            )}
           </div>
         </div>
 
@@ -47,38 +89,58 @@ export default function Header() {
 
       {/* Menu Mobile Overlay */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white border-b border-gray-100 py-4 px-6 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="md:hidden bg-white border-b border-gray-100 py-6 px-6 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
           <Link 
             href="/vehicles" 
-            className="block text-lg font-medium text-gray-700 hover:text-togo-green"
+            className="block text-lg font-bold text-gray-700 hover:text-togo-green"
             onClick={() => setIsMenuOpen(false)}
           >
             Véhicules
           </Link>
           <Link 
             href="/about" 
-            className="block text-lg font-medium text-gray-700 hover:text-togo-green"
+            className="block text-lg font-bold text-gray-700 hover:text-togo-green"
             onClick={() => setIsMenuOpen(false)}
           >
             À propos
           </Link>
+          
           <hr className="border-gray-100" />
-          <div className="flex flex-col space-y-3">
-            <Link 
-              href="/login" 
-              className="text-center py-3 text-togo-dark font-semibold border border-gray-200 rounded-xl"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Connexion
-            </Link>
-            <Link 
-              href="/register" 
-              className="text-center py-3 bg-togo-green text-white font-semibold rounded-xl shadow-md shadow-togo-green/20"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              S'inscrire
-            </Link>
-          </div>
+          
+          {user ? (
+            <div className="space-y-4">
+              <Link 
+                href={user.role === 'ADMIN' ? '/admin' : '/dashboard/bookings'}
+                className="flex items-center gap-3 text-lg font-bold text-togo-dark"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <LayoutDashboard className="w-6 h-6 text-togo-green" /> Dashboard ({user.firstName})
+              </Link>
+              <button 
+                onClick={handleLogout}
+                className="flex items-center gap-3 text-lg font-bold text-togo-red w-full"
+              >
+                <LogOut className="w-6 h-6" /> Déconnexion
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col space-y-3">
+              <Link 
+                href="/login" 
+                className="text-center py-4 text-togo-dark font-bold border border-gray-200 rounded-2xl"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Connexion
+              </Link>
+              <Link 
+                href="/register" 
+                className="text-center py-4 bg-togo-green text-white font-bold rounded-2xl shadow-md"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                S'inscrire gratuitement
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </header>

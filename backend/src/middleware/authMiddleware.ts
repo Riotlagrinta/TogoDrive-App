@@ -17,3 +17,20 @@ export const authenticate = (req, res, next) => {
     res.status(401).json({ message: "Token invalide ou expiré." });
   }
 };
+
+// Middleware pour vérifier les rôles
+export const authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Non authentifié" });
+    }
+
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ 
+        message: `Accès interdit. Votre rôle (${req.user.role}) n'a pas les permissions nécessaires.` 
+      });
+    }
+
+    next();
+  };
+};
