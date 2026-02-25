@@ -1,0 +1,47 @@
+# TogoDrive Frontend Initial Setup
+
+Ce document détaille le plan pour implémenter une interface élégante et sobre pour TogoDrive, représentant fièrement les couleurs et l'esprit du Togo.
+
+## User Review Required
+
+Veuillez valider les choix de design et les technologies ajoutées :
+- **Couleurs Togolaises :** Vert profond (Premium), Or/Jaune (Accents doux), Rouge (Boutons d'action clairs), et Blanc/Gris clair pour un rendu sobre et premium.
+- **Ajout de librairies :** `lucide-react` (icônes) et `framer-motion` (animations fluides) pour donner un rendu dynamique et "Wow" au premier coup d'œil.
+
+## Proposed Changes
+
+---
+
+### Configuration & Dépendances
+- Installation de `lucide-react` et `framer-motion`.
+- Mise à jour de la configuration Tailwind pour inclure la palette de couleurs personnalisée.
+
+#### [MODIFY] [tailwind.config.js](file:///e:/PROJETS/TogoDrive/frontend/tailwind.config.js)
+#### [MODIFY] [package.json](file:///e:/PROJETS/TogoDrive/frontend/package.json)
+
+---
+
+### Interface Principale (Landing Page)
+Création d'une page d'accueil avec un Header fixe transparent, une section Hero captivante, et un design "Mobile-First" comme exigé dans les règles du projet (en vue de l'ERP).
+
+#### [MODIFY] [globals.css](file:///e:/PROJETS/TogoDrive/frontend/app/globals.css)
+#### [MODIFY] [layout.tsx](file:///e:/PROJETS/TogoDrive/frontend/app/layout.tsx)
+#### [MODIFY] [page.tsx](file:///e:/PROJETS/TogoDrive/frontend/app/page.tsx)
+
+---
+
+### Composants UI
+Création des composants de base pour structurer proprement le code.
+
+#### [NEW] [Header.tsx](file:///e:/PROJETS/TogoDrive/frontend/components/Header.tsx)
+#### [NEW] [Hero.tsx](file:///e:/PROJETS/TogoDrive/frontend/components/Hero.tsx)
+#### [NEW] [Footer.tsx](file:///e:/PROJETS/TogoDrive/frontend/components/Footer.tsx)
+
+## Verification Plan
+
+### Automated Tests
+- Lancer le projet via `npm run dev` pour vérifier qu'il n'y a pas d'erreurs de compilation ou de dépendances manquantes.
+
+### Manual Verification
+- Visualiser le rendu sur le port local pour s'assurer que les couleurs (Vert, Jaune, Rouge, Blanc), les animations (Framer Motion) et les icônes (Lucide) s'affichent correctement.
+- S'assurer que le design est 100% responsive (Mobile-First) en redimensionnant la fenêtre.

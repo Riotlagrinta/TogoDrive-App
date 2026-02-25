@@ -28,4 +28,13 @@ app.use((req, res) => {
   res.status(404).json({ message: 'Route non trouvée' });
 });
 
+// Gestionnaire d'erreurs global
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    message: err.message || 'Erreur interne du serveur',
+    error: process.env.NODE_ENV === 'development' ? err : {}
+  });
+});
+
 export default app;
