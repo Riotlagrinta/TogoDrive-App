@@ -9,19 +9,19 @@ import Link from 'next/link';
 export default function VehicleDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const [vehicle, setVehicle] = useState(null);
+  const [vehicle, setVehicle] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchVehicle = async () => {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/vehicles`);
         const data = await response.json();
-        const found = data.find((v) => v.id === id);
+        const found = data.find((v: any) => v.id === id);
         setVehicle(found);
       } catch (err) {
         console.error(err);
@@ -32,7 +32,7 @@ export default function VehicleDetailPage() {
     fetchVehicle();
   }, [id]);
 
-  const handleBooking = async (e) => {
+  const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     setBookingLoading(true);
     setError(null);
@@ -62,7 +62,7 @@ export default function VehicleDetailPage() {
 
       alert("Réservation effectuée avec succès !");
       router.push('/dashboard/bookings');
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message);
     } finally {
       setBookingLoading(false);

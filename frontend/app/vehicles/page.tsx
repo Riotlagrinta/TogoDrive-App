@@ -16,7 +16,7 @@ const VEHICLE_TYPES = [
 ];
 
 export default function VehiclesPage() {
-  const [vehicles, setVehicles] = useState([]);
+  const [vehicles, setVehicles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,7 +36,7 @@ export default function VehiclesPage() {
     fetchVehicles();
   }, []);
 
-  const filteredVehicles = vehicles.filter((v) => {
+  const filteredVehicles = vehicles.filter((v: any) => {
     const matchesFilter = filter === 'ALL' || v.type === filter;
     const matchesSearch = v.brand.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           v.model.toLowerCase().includes(searchQuery.toLowerCase());

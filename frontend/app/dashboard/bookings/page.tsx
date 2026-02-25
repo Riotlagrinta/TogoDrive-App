@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-const STATUS_MAP = {
+const STATUS_MAP: Record<string, any> = {
   PENDING: { label: 'En attente', color: 'text-yellow-600', bg: 'bg-yellow-50', icon: Clock },
   CONFIRMED: { label: 'Confirmée', color: 'text-togo-green', bg: 'bg-togo-green/10', icon: CheckCircle2 },
   COMPLETED: { label: 'Terminée', color: 'text-blue-600', bg: 'bg-blue-50', icon: CheckCircle2 },
@@ -25,7 +25,7 @@ const STATUS_MAP = {
 };
 
 export default function MyBookingsPage() {
-  const [bookings, setBookings] = useState([]);
+  const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 

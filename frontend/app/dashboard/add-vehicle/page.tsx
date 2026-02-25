@@ -10,8 +10,8 @@ import { Car, Loader2, Save, Image, MapPin, Tag, Briefcase, Plus } from 'lucide-
 const vehicleSchema = z.object({
   brand: z.string().min(1, "La marque est requise"),
   model: z.string().min(1, "Le modèle est requis"),
-  year: z.preprocess((val) => Number(val), z.number().int().min(1900).max(new Date().getFullYear() + 1)),
-  pricePerDay: z.preprocess((val) => Number(val), z.number().positive("Le prix doit être positif")),
+  year: z.coerce.number().int().min(1900).max(new Date().getFullYear() + 1),
+  pricePerDay: z.coerce.number().positive("Le prix doit être positif"),
   type: z.enum(['SEDAN', 'SUV', 'HATCHBACK', 'PICKUP', 'VAN', 'MOTORCYCLE']),
   location: z.string().min(1, "La localisation est requise"),
 });
@@ -31,7 +31,7 @@ export default function AddVehiclePage() {
     }
   }, [router]);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<VehicleFormData>({
+  const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(vehicleSchema),
     defaultValues: {
       type: 'SEDAN',
@@ -39,7 +39,7 @@ export default function AddVehiclePage() {
     }
   });
 
-  const onSubmit = async (data: VehicleFormData) => {
+  const onSubmit = async (data: any) => {
     setIsLoading(true);
     setError(null);
     try {
