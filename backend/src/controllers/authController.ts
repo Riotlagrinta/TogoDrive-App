@@ -1,4 +1,5 @@
 // @ts-nocheck
+import process from 'process';
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
@@ -13,6 +14,8 @@ const registerSchema = z.object({
   firstName: z.string().min(2, "Le prénom est requis"),
   lastName: z.string().min(2, "Le nom est requis"),
   phone: z.string().optional(),
+  role: z.enum(['CLIENT', 'PARTNER']).default('CLIENT'),
+  warehouseLocation: z.string().optional(),
 });
 
 export const register = async (req: Request, res: Response) => {
@@ -29,6 +32,9 @@ export const register = async (req: Request, res: Response) => {
 
     const hashedPassword = await bcrypt.hash(validatedData.password, 10);
 
+    // Si c'est un partenaire, son statut est PENDING
+    const initialStatus = validatedData.role === 'PARTNER' ? 'PENDING' : 'ACTIVE';
+
     const user = await prisma.user.create({
       data: {
         email: validatedData.email,
@@ -36,24 +42,30 @@ export const register = async (req: Request, res: Response) => {
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
         phone: validatedData.phone,
+        role: validatedData.role,
+        status: initialStatus,
+        warehouseLocation: validatedData.warehouseLocation,
       }
     });
 
     const token = jwt.sign(
-      { userId: user.id, role: user.role },
+      { userId: user.id, role: user.role, status: user.status },
       process.env.JWT_SECRET as string,
       { expiresIn: '7d' }
     );
 
     res.status(201).json({
-      message: "Utilisateur créé avec succès",
+      message: user.role === 'PARTNER' 
+        ? "Inscription réussie. Votre compte est en attente de validation par l'administrateur." 
+        : "Utilisateur créé avec succès",
       token,
       user: {
         id: user.id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: user.role
+        role: user.role,
+        status: user.status
       }
     });
   } catch (error: any) {
@@ -79,7 +91,7 @@ export const login = async (req: Request, res: Response) => {
     }
 
     const token = jwt.sign(
-      { userId: user.id, role: user.role },
+      { userId: user.id, role: user.role, status: user.status },
       process.env.JWT_SECRET as string,
       { expiresIn: '7d' }
     );
@@ -92,7 +104,8 @@ export const login = async (req: Request, res: Response) => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: user.role
+        role: user.role,
+        status: user.status
       }
     });
   } catch (error: any) {
